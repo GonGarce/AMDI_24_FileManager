@@ -1,0 +1,13 @@
+**/nbproject/private/
+**/nbproject/Makefile-*.mk
+**/nbproject/Package-*.bash
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+/UD2_Java_Swing_Ejercicios/target/
+
+# drive
+.tmp.driveupload/**
+.tmp.drivedownload/**
