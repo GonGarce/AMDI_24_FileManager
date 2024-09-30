@@ -5,9 +5,16 @@
     <artifactId>UD2_Actividades</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
+    <dependencies>
+        <dependency>
+            <groupId>com.formdev</groupId>
+            <artifactId>flatlaf</artifactId>
+            <version>3.5.1</version>
+        </dependency>
+    </dependencies>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.release>23</maven.compiler.release>
+        <maven.compiler.release>22</maven.compiler.release>
         <exec.mainClass>io.gongarce.ud2_actividades.UD2_Actividades</exec.mainClass>
     </properties>
 </project>

@@ -11,3 +11,4 @@ nbdist/
 # drive
 .tmp.driveupload/**
 .tmp.drivedownload/**
+/UD2_Actividades/target/
