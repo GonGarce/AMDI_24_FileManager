@@ -134,9 +134,13 @@ public class FileManager extends javax.swing.JFrame implements TreeWillExpandLis
         String name = DialogManager.showNewFileDialog(this);
         if (Objects.nonNull(name)) {
             var result = node.addNewFile(name, isFolder);
-            switch (result) {
-                case ADDED ->
+            switch (result.getResult()) {
+                case ADDED -> {
+                    if (result.getFile() instanceof TreeLeaf treeLeaf) {
+                        tabs.openFile(treeLeaf);
+                    }
                     treeModel.reload(node);
+                }
                 case NAME_IN_USE ->
                     DialogManager.showError(this, "File name already in use");
                 default ->
@@ -152,7 +156,9 @@ public class FileManager extends javax.swing.JFrame implements TreeWillExpandLis
                 ((TreeFile) parent).remove(node);
             }
             treeModel.reload(node);
-            tabs.removeFile(node);
+            if (node instanceof TreeLeaf) {
+                tabs.removeFile((TreeLeaf) node);
+            }
         } else {
             DialogManager.showError(this, "File could not be deleted");
         }

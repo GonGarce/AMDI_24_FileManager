@@ -21,6 +21,26 @@ public class TreeBranch extends TreeFile {
         NAME_IN_USE, ERROR, ADDED;
     }
 
+    public static class AddFileResult {
+
+        private ADD_FILE_RESULT result;
+        private TreeFile file;
+
+        public AddFileResult(ADD_FILE_RESULT result, TreeFile file) {
+            this.result = result;
+            this.file = file;
+        }
+
+        public ADD_FILE_RESULT getResult() {
+            return result;
+        }
+
+        public TreeFile getFile() {
+            return file;
+        }
+
+    }
+
     private boolean isLoaded;
 
     public TreeBranch(File file) {
@@ -66,19 +86,19 @@ public class TreeBranch extends TreeFile {
     }
 
     @NotNull
-    public ADD_FILE_RESULT addNewFile(String name, boolean isDirectory) {
+    public AddFileResult addNewFile(String name, boolean isDirectory) {
         File newFile = new File(file, name);
         try {
             if (!createFile(newFile, isDirectory)) {
-                return ADD_FILE_RESULT.NAME_IN_USE;
+                return new AddFileResult(ADD_FILE_RESULT.NAME_IN_USE, null);
             }
         } catch (Exception ex) {
-            return ADD_FILE_RESULT.ERROR;
+            return new AddFileResult(ADD_FILE_RESULT.ERROR, null);
         }
         TreeFile treeFile = newFile.isDirectory() ? new TreeBranch(newFile) : new TreeLeaf(newFile);
         this.add(treeFile);
         this.reloadChildren();
-        return ADD_FILE_RESULT.ADDED;
+        return new AddFileResult(ADD_FILE_RESULT.ADDED, treeFile);
     }
 
     private boolean createFile(File file, boolean isDirectory) throws IOException {

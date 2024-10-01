@@ -45,4 +45,8 @@ public abstract class TreeFile extends DefaultMutableTreeNode {
     public String getName() {
         return file.getName();
     }
+    
+    public String getAbsolutePath() {
+        return file.getAbsolutePath();
+    }
 }

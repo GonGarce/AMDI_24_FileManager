@@ -102,10 +102,6 @@ public class TabsPanel extends JTabbedPane {
         }
     }
 
-    public boolean isOpen(TreeFile file) {
-        return openFiles.indexOf(file) != -1;
-    }
-
     public void updateName(TreeFile file) {
         if (file instanceof TreeLeaf treeLeaf) {
             int index = getFileIndex(treeLeaf);
@@ -126,8 +122,8 @@ public class TabsPanel extends JTabbedPane {
         return true;
     }
 
-    public void removeFile(TreeFile file) {
-        int index = openFiles.indexOf(file);
+    public void removeFile(TreeLeaf file) {
+        int index = getFileIndex(file);
         if (index > -1) {
             this.remove(index);
             this.openFiles.remove(index);
@@ -139,7 +135,18 @@ public class TabsPanel extends JTabbedPane {
     }
 
     private int getFileIndex(TreeLeaf file) {
-        return openFiles.indexOf(file);
+        int index = openFiles.indexOf(file);
+        if (index != -1) {
+            return index;
+        }
+        var found = openFiles.stream().filter((f) -> f.getAbsolutePath().equals(file.getAbsolutePath())).findFirst();
+        if (found.isPresent()) {
+            index = openFiles.indexOf(found.get());
+            openFiles.set(index, file);
+            return index;
+        }
+
+        return -1;
     }
 
     private void createTab(TreeLeaf file) {
