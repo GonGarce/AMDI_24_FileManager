@@ -4,19 +4,24 @@
  */
 package actividad_2.components;
 
-import actividad_2.dialogs.DialogFileTypeError;
+import actividad_2.dialogs.DialogCloseConfirm;
+import actividad_2.dialogs.DialogManager;
 import actividad_2.model.TreeFile;
 import actividad_2.model.TreeLeaf;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
-import java.util.stream.Stream;
+import java.util.Objects;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 /**
  *
@@ -25,6 +30,8 @@ import javax.swing.SwingUtilities;
 public class TabsPanel extends JTabbedPane {
 
     private ArrayList<TreeLeaf> openFiles = new ArrayList<>();
+    private FileChangeListener fileChangeListener;
+    private int lastIndex = -1;
 
     MouseListener wheel = new MouseAdapter() {
         @Override
@@ -32,9 +39,34 @@ public class TabsPanel extends JTabbedPane {
             if (e.getButton() == MouseEvent.BUTTON2) {
                 int i = TabsPanel.this.indexAtLocation(e.getX(), e.getY());
                 if (i > -1) {
-                    openFiles.remove(i);
-                    TabsPanel.this.remove(i);
+                    TreeLeaf file = openFiles.get(i);
+                    DialogCloseConfirm.CLOSE_OPTION closeOption = file.isModified()
+                            ? DialogManager.showCloseWithoutSave((JFrame) SwingUtilities.getWindowAncestor(TabsPanel.this))
+                            : DialogCloseConfirm.CLOSE_OPTION.DISCARD;
+                    if (closeOption == DialogCloseConfirm.CLOSE_OPTION.DISCARD) {
+                        file.setModified(false);
+                        openFiles.remove(i);
+                        TabsPanel.this.remove(i);
+                    } else if (closeOption == DialogCloseConfirm.CLOSE_OPTION.SAVE && saveCurrentTab()) {
+                        file.setModified(false);
+                        openFiles.remove(i);
+                        TabsPanel.this.remove(i);
+                    }
                 }
+            }
+        }
+    };
+
+    ChangeListener changeListener = new ChangeListener() {
+        @Override
+        public void stateChanged(ChangeEvent e) {
+            int index = getSelectedIndex();
+            if (Objects.isNull(fileChangeListener)) {
+                return;
+            }
+            if (lastIndex != index) {
+                lastIndex = index;
+                fileChangeListener.fileChanged(index == -1 ? null : openFiles.get(index));
             }
         }
     };
@@ -46,6 +78,7 @@ public class TabsPanel extends JTabbedPane {
     private TabsPanel(int tabPlacement) {
         super(tabPlacement);
         this.addMouseListener(wheel);
+        this.addChangeListener(changeListener);
     }
 
     public void openFile(TreeLeaf file) {
@@ -58,7 +91,7 @@ public class TabsPanel extends JTabbedPane {
         if (file.isAllowed()) {
             createTab(file);
         } else {
-            new DialogFileTypeError((JFrame) SwingUtilities.getWindowAncestor(this)).setVisible(true);
+            DialogManager.showFileTypeError((JFrame) SwingUtilities.getWindowAncestor(this));
         }
     }
 
@@ -75,6 +108,17 @@ public class TabsPanel extends JTabbedPane {
         }
     }
 
+    public boolean saveCurrentTab() {
+        int index = this.getSelectedIndex();
+        if (index > -1) {
+            JScrollPane scrollPane = (JScrollPane) this.getComponentAt(index);
+            JTextArea textArea = (JTextArea) scrollPane.getViewport().getView();
+            TreeLeaf file = this.openFiles.get(index);
+            return file.save(textArea.getText());
+        }
+        return true;
+    }
+
     private int getFileIndex(TreeLeaf file) {
         return openFiles.indexOf(file);
     }
@@ -85,7 +129,33 @@ public class TabsPanel extends JTabbedPane {
         JScrollPane scrollPane = new JScrollPane(textArea);
         textArea.setEditable(true);
         textArea.setText(file.getContent());
+        textArea.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                System.out.println("insertUpdate");
+                file.setModified(true);
+                fileChangeListener.fileChanged(file);
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                System.out.println("removeUpdate");
+                file.setModified(true);
+                fileChangeListener.fileChanged(file);
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                System.out.println("changedUpdate");
+                file.setModified(true);
+                fileChangeListener.fileChanged(file);
+            }
+        });
         this.addTab(file.toString(), file.getIcon(), scrollPane);
         this.setSelectedComponent(scrollPane);
+    }
+
+    public void setFileChangeListener(FileChangeListener listener) {
+        this.fileChangeListener = listener;
     }
 }

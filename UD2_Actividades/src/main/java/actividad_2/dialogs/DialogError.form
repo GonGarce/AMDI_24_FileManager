@@ -46,9 +46,9 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JLabel" name="jLabel1">
+        <Component class="javax.swing.JLabel" name="lblDescription">
           <Properties>
-            <Property name="text" type="java.lang.String" value="No se pudo renombrar el archivo"/>
+            <Property name="text" type="java.lang.String" value="No se pudo guardar el archivo"/>
             <Property name="horizontalTextPosition" type="int" value="0"/>
           </Properties>
           <Constraints>

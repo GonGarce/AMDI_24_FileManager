@@ -8,12 +8,12 @@ package actividad_2.dialogs;
  *
  * @author Gonzalo
  */
-public class DialogFileRenameError extends javax.swing.JDialog {
+public class DialogSaveError extends javax.swing.JDialog {
 
     /**
      * Creates new form FileTypeError
      */
-    public DialogFileRenameError(java.awt.Frame parent) {
+    public DialogSaveError(java.awt.Frame parent) {
         super(parent, true);
         initComponents();
         this.setLocationRelativeTo(parent);
@@ -47,7 +47,7 @@ public class DialogFileRenameError extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 10, 0);
         jPanel1.add(jLabel2, gridBagConstraints);
 
-        jLabel1.setText("No se pudo renombrar el archivo");
+        jLabel1.setText("No se pudo guardar el archivo");
         jLabel1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;

@@ -8,15 +8,18 @@ package actividad_2.dialogs;
  *
  * @author Gonzalo
  */
-public class DialogFileTypeError extends javax.swing.JDialog {
+public class DialogError extends javax.swing.JDialog {
 
     /**
      * Creates new form FileTypeError
+     * @param parent
+     * @param description
      */
-    public DialogFileTypeError(java.awt.Frame parent) {
+    public DialogError(java.awt.Frame parent, String description) {
         super(parent, true);
         initComponents();
         this.setLocationRelativeTo(parent);
+        this.lblDescription.setText(description);
     }
 
     /**
@@ -31,7 +34,7 @@ public class DialogFileTypeError extends javax.swing.JDialog {
 
         jPanel1 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
+        lblDescription = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -47,12 +50,12 @@ public class DialogFileTypeError extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 10, 0);
         jPanel1.add(jLabel2, gridBagConstraints);
 
-        jLabel1.setText("El tipo de archivo que intenta abrir no está permitido");
-        jLabel1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        lblDescription.setText("No se pudo guardar el archivo");
+        lblDescription.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
-        jPanel1.add(jLabel1, gridBagConstraints);
+        jPanel1.add(lblDescription, gridBagConstraints);
 
         jButton1.setText("Vale");
         jButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -79,8 +82,8 @@ public class DialogFileTypeError extends javax.swing.JDialog {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JLabel lblDescription;
     // End of variables declaration//GEN-END:variables
 }

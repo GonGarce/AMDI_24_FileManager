@@ -4,10 +4,9 @@
  */
 package actividad_2.model;
 
-import actividad_2.FileManager;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -16,7 +15,6 @@ import java.util.Objects;
 import java.util.Scanner;
 import java.util.stream.Stream;
 import javax.swing.ImageIcon;
-import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
  *
@@ -27,6 +25,7 @@ public class TreeLeaf extends TreeFile {
     private static final String[] ALLOWED_TYPES = {"text/plain"};
 
     private String mimeType;
+    private boolean modified;
 
     public TreeLeaf(File file) {
         super(file, false);
@@ -36,6 +35,7 @@ public class TreeLeaf extends TreeFile {
             e.printStackTrace();
             this.mimeType = "unk";
         }
+        this.modified = false;
     }
 
     public String getContent() {
@@ -55,10 +55,6 @@ public class TreeLeaf extends TreeFile {
                 .append(new Date()).append(")").toString();
     }
 
-    public String getMimeType() {
-        return this.mimeType;
-    }
-
     public ImageIcon getIcon() {
         if (Objects.isNull(this.mimeType)) {
             return TreeIcon.FILE_UNK.getIcon();
@@ -73,5 +69,27 @@ public class TreeLeaf extends TreeFile {
 
     public boolean isAllowed() {
         return Stream.of(ALLOWED_TYPES).anyMatch((t) -> t.equals(this.mimeType));
+    }
+
+    public boolean save(String content) {
+        try (FileOutputStream fos = new FileOutputStream(file)) {
+            fos.write(content.getBytes());
+        } catch (IOException ex) {
+            return false;
+        }
+        this.modified = false;
+        return true;
+    }
+
+    public boolean isModified() {
+        return modified;
+    }
+
+    public void setModified(boolean modified) {
+        this.modified = modified;
+    }
+
+    public String getMimeType() {
+        return this.mimeType;
     }
 }

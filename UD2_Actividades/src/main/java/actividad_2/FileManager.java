@@ -7,18 +7,23 @@ package actividad_2;
 import actividad_2.components.ContextMenu;
 import actividad_2.components.FileCellRenderer;
 import actividad_2.components.TabsPanel;
-import actividad_2.dialogs.DialogFileRenameError;
+import actividad_2.dialogs.DialogManager;
 import actividad_2.dialogs.DialogRename;
 import actividad_2.model.TreeBranch;
 import actividad_2.model.TreeFile;
 import actividad_2.model.TreeLeaf;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
-import javax.swing.JFileChooser;
+import java.util.Objects;
+import static java.util.Objects.isNull;
+import javax.swing.JMenuItem;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeWillExpandListener;
@@ -37,7 +42,8 @@ public class FileManager extends javax.swing.JFrame implements TreeWillExpandLis
 
     private TabsPanel tabs;
     private DefaultTreeModel treeModel;
-    ContextMenu contextMenu;
+    private ContextMenu contextMenu;
+    private JMenuItem menuSave;
 
     ActionListener menuAction = new ActionListener() {
         @Override
@@ -100,38 +106,22 @@ public class FileManager extends javax.swing.JFrame implements TreeWillExpandLis
     }
 
     private void openRenameDialog(TreeFile fileTree) {
-        DialogRename dialog = new DialogRename(this, fileTree.getName());
-        String name = dialog.open();
-        System.out.println(name);
-        if (fileTree.rename(name)) {
-            fileTree.setName(name);
-            treeModel.reload(fileTree);
-            tabs.updateName(fileTree);
-        } else {
-            new DialogFileRenameError(this).setVisible(true);
+        String name = DialogManager.showRenameDialog(this, fileTree.getName());
+        if (!name.equals(fileTree.getName())) {
+            if (fileTree.rename(name)) {
+                fileTree.setName(name);
+                treeModel.reload(fileTree);
+                tabs.updateName(fileTree);
+            } else {
+                DialogManager.showRenameError(this);
+            }
         }
     }
 
     private void chooseFile() {
-        JFileChooser jf = new JFileChooser() {
-            @Override
-            public void approveSelection() {
-                if (!getSelectedFile().isFile()) {
-                    super.approveSelection();
-                }
-            }
-        }; // default constructor JFileChooser is called.  
-        jf.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-
-        int selection = jf.showOpenDialog(this);
-        if (selection == JFileChooser.APPROVE_OPTION) {
-            File f = jf.getSelectedFile();
-            // if the user accidently click a file, then select the parent directory.
-            if (!f.isDirectory()) {
-                f = f.getParentFile();
-            }
-            System.out.println("Selected directory for import " + f);
-            loadFileTree(f);
+        File file = DialogManager.showFileChooser(this);
+        if (Objects.nonNull(file)) {
+            loadFileTree(file);
         }
     }
 
@@ -160,11 +150,27 @@ public class FileManager extends javax.swing.JFrame implements TreeWillExpandLis
         // Create Tabs panel
         tabs = new TabsPanel();
         jSplitPane1.setRightComponent(tabs);
+        tabs.setFileChangeListener((file) -> {
+            menuSave.setEnabled(isNull(file) ? false : file.isModified());
+        });
 
         //Menu
         menuOpen.addActionListener((e) -> {
             chooseFile();
         });
+        menuSave = new JMenuItem("Save");
+        menuSave.addActionListener((e) -> {
+            if (tabs.saveCurrentTab()) {
+                menuSave.setEnabled(false);
+            } else {
+                DialogManager.showSaveError(this);
+            }
+        });
+        menuSave.setEnabled(false);
+        KeyStroke ctrlSave = KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK);
+        menuSave.setAccelerator(ctrlSave);
+        menuSave.setMaximumSize(menuSave.getPreferredSize());
+        jMenuBar1.add(menuSave);
         contextMenu = new ContextMenu(menuAction);
     }
 
@@ -183,7 +189,6 @@ public class FileManager extends javax.swing.JFrame implements TreeWillExpandLis
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         menuOpen = new javax.swing.JMenuItem();
-        menuSave = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -199,9 +204,6 @@ public class FileManager extends javax.swing.JFrame implements TreeWillExpandLis
         jMenu1.add(menuOpen);
 
         jMenuBar1.add(jMenu1);
-
-        menuSave.setText("Save");
-        jMenuBar1.add(menuSave);
 
         setJMenuBar(jMenuBar1);
 
@@ -262,7 +264,6 @@ public class FileManager extends javax.swing.JFrame implements TreeWillExpandLis
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JTree jTree1;
     private javax.swing.JMenuItem menuOpen;
-    private javax.swing.JMenu menuSave;
     // End of variables declaration//GEN-END:variables
 
     @Override

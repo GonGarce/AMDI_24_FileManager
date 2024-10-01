@@ -48,7 +48,7 @@
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel1">
           <Properties>
-            <Property name="text" type="java.lang.String" value="El tipo de archivo que intenta abrir no est&#xe1; permitido"/>
+            <Property name="text" type="java.lang.String" value="No se pudo guardar el archivo"/>
             <Property name="horizontalTextPosition" type="int" value="0"/>
           </Properties>
           <Constraints>
