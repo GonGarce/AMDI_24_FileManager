@@ -12,7 +12,12 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -22,6 +27,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.tree.TreeNode;
 
 /**
  *
@@ -30,6 +36,7 @@ import javax.swing.event.DocumentListener;
 public class TabsPanel extends JTabbedPane {
 
     private ArrayList<TreeLeaf> openFiles = new ArrayList<>();
+    private HashMap<String, Integer> openMap = new HashMap<>();
     private FileChangeListener fileChangeListener;
     private int lastIndex = -1;
 
@@ -119,6 +126,18 @@ public class TabsPanel extends JTabbedPane {
         return true;
     }
 
+    public void removeFile(TreeFile file) {
+        int index = openFiles.indexOf(file);
+        if (index > -1) {
+            this.remove(index);
+            this.openFiles.remove(index);
+        }
+    }
+
+    public void setFileChangeListener(FileChangeListener listener) {
+        this.fileChangeListener = listener;
+    }
+
     private int getFileIndex(TreeLeaf file) {
         return openFiles.indexOf(file);
     }
@@ -129,33 +148,39 @@ public class TabsPanel extends JTabbedPane {
         JScrollPane scrollPane = new JScrollPane(textArea);
         textArea.setEditable(true);
         textArea.setText(file.getContent());
-        textArea.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                System.out.println("insertUpdate");
-                file.setModified(true);
-                fileChangeListener.fileChanged(file);
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                System.out.println("removeUpdate");
-                file.setModified(true);
-                fileChangeListener.fileChanged(file);
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                System.out.println("changedUpdate");
-                file.setModified(true);
-                fileChangeListener.fileChanged(file);
-            }
-        });
+        textArea.getDocument().addDocumentListener(new DocumentChangeListener(file));
         this.addTab(file.toString(), file.getIcon(), scrollPane);
         this.setSelectedComponent(scrollPane);
     }
 
-    public void setFileChangeListener(FileChangeListener listener) {
-        this.fileChangeListener = listener;
+    private class DocumentChangeListener implements DocumentListener {
+
+        private final TreeLeaf file;
+
+        public DocumentChangeListener(TreeLeaf file) {
+            this.file = file;
+        }
+
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            onChange();
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            onChange();
+        }
+
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+            onChange();
+        }
+
+        private void onChange() {
+            file.setModified(true);
+            if (Objects.nonNull(fileChangeListener)) {
+                fileChangeListener.fileChanged(file);
+            }
+        }
     }
 }

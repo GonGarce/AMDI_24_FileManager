@@ -10,24 +10,35 @@ import javax.swing.JFileChooser;
  *
  * @author Gonzalo
  */
-public class DialogRename extends javax.swing.JDialog {
+public class DialogEnterName extends javax.swing.JDialog {
 
-    private String name;
+    private String detaultValue;
 
     /**
      * Creates new form FileTypeError
      */
-    public DialogRename(java.awt.Frame parent, String name) {
+    public DialogEnterName(java.awt.Frame parent) {
+        this(parent, null);
+    }
+    
+    public DialogEnterName(java.awt.Frame parent, String detaultValue) {
         super(parent, true);
         initComponents();
         this.setLocationRelativeTo(parent);
-        this.name = name;
-        txtName.setText(name);
+        this.detaultValue = detaultValue;
+        txtName.setText(this.detaultValue);
     }
 
-    public String open() {
+    public String openForRename() {
+        this.btnSave.setText("Rename");
         this.setVisible(true);
-        return this.name;
+        return this.detaultValue;
+    }
+
+    public String openForCreate() {
+        this.btnSave.setText("Create");
+        this.setVisible(true);
+        return this.detaultValue;
     }
 
     /**
@@ -45,7 +56,7 @@ public class DialogRename extends javax.swing.JDialog {
         txtName = new javax.swing.JTextField();
         jPanel2 = new javax.swing.JPanel();
         btnCancel = new javax.swing.JButton();
-        btnRename = new javax.swing.JButton();
+        btnSave = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Error: Archivo no permitido");
@@ -81,13 +92,13 @@ public class DialogRename extends javax.swing.JDialog {
         });
         jPanel2.add(btnCancel);
 
-        btnRename.setText("Rename");
-        btnRename.addActionListener(new java.awt.event.ActionListener() {
+        btnSave.setText("Save");
+        btnSave.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnRenameActionPerformed(evt);
+                btnSaveActionPerformed(evt);
             }
         });
-        jPanel2.add(btnRename);
+        jPanel2.add(btnSave);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -105,18 +116,18 @@ public class DialogRename extends javax.swing.JDialog {
         this.dispose();
     }//GEN-LAST:event_btnCancelActionPerformed
 
-    private void btnRenameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRenameActionPerformed
+    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
         // TODO add your handling code here:
         String text = txtName.getText().trim();
         if (!text.equals("")) {
-            this.name = text;
+            this.detaultValue = text;
         }
         this.dispose();
-    }//GEN-LAST:event_btnRenameActionPerformed
+    }//GEN-LAST:event_btnSaveActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCancel;
-    private javax.swing.JButton btnRename;
+    private javax.swing.JButton btnSave;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;

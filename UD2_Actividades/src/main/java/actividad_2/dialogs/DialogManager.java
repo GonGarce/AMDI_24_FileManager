@@ -15,7 +15,7 @@ import javax.swing.JFrame;
  */
 public class DialogManager {
 
-    private enum Errors {
+    private static enum Errors {
         SAVE("No se pudo guardar el  archivo"),
         RENAME("No se pudo renombrar el archivo"),
         FILE_TYPE("El tipo de archivo que intenta abrir no está permitido");
@@ -55,8 +55,13 @@ public class DialogManager {
     }
     
     public static String showRenameDialog(JFrame parent, String currentName) {
-        DialogRename dialog = new DialogRename(parent, currentName);
-        return dialog.open();
+        DialogEnterName dialog = new DialogEnterName(parent, currentName);
+        return dialog.openForRename();
+    }
+    
+    public static String showNewFileDialog(JFrame parent) {
+        DialogEnterName dialog = new DialogEnterName(parent);
+        return dialog.openForCreate();
     }
 
     public static void showSaveError(JFrame parent) {
@@ -71,7 +76,7 @@ public class DialogManager {
         showError(parent, Errors.FILE_TYPE.description);
     }
 
-    private static void showError(JFrame parent, String description) {
+    public static void showError(JFrame parent, String description) {
         JDialog dialog = new DialogError(parent, description);
         dialog.setVisible(true);
     }

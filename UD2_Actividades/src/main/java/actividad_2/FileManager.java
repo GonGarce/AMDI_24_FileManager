@@ -8,7 +8,7 @@ import actividad_2.components.ContextMenu;
 import actividad_2.components.FileCellRenderer;
 import actividad_2.components.TabsPanel;
 import actividad_2.dialogs.DialogManager;
-import actividad_2.dialogs.DialogRename;
+import actividad_2.dialogs.DialogEnterName;
 import actividad_2.model.TreeBranch;
 import actividad_2.model.TreeFile;
 import actividad_2.model.TreeLeaf;
@@ -52,14 +52,13 @@ public class FileManager extends javax.swing.JFrame implements TreeWillExpandLis
             if (ContextMenu.Options.RENAME.label.equals(e.getActionCommand())) {
                 openRenameDialog((TreeFile) node);
             } else if (ContextMenu.Options.REFRESH.label.equals(e.getActionCommand())) {
-                TreeBranch firstBranch;
-                if (node instanceof TreeBranch treeBranch) {
-                    firstBranch = treeBranch;
-                } else {
-                    firstBranch = (TreeBranch) node.getParent();
-                }
-                firstBranch.reloadChildren();
-                treeModel.reload(firstBranch);
+                refreshNode(getFirstBranch((TreeFile) node));
+            } else if (ContextMenu.Options.NEW_FILE.label.equals(e.getActionCommand())) {
+                createFile(getFirstBranch((TreeFile) node), false);
+            } else if (ContextMenu.Options.NEW_FOLDER.label.equals(e.getActionCommand())) {
+                createFile(getFirstBranch((TreeFile) node), true);
+            } else if (ContextMenu.Options.DELETE.label.equals(e.getActionCommand())) {
+                deleteFile((TreeFile) node);
             }
         }
     };
@@ -115,6 +114,47 @@ public class FileManager extends javax.swing.JFrame implements TreeWillExpandLis
             } else {
                 DialogManager.showRenameError(this);
             }
+        }
+    }
+
+    private TreeBranch getFirstBranch(TreeFile node) {
+        if (node instanceof TreeBranch treeBranch) {
+            return treeBranch;
+        } else {
+            return (TreeBranch) node.getParent();
+        }
+    }
+
+    private void refreshNode(TreeBranch node) {
+        node.reloadChildren();
+        treeModel.reload(node);
+    }
+
+    private void createFile(TreeBranch node, boolean isFolder) {
+        String name = DialogManager.showNewFileDialog(this);
+        if (Objects.nonNull(name)) {
+            var result = node.addNewFile(name, isFolder);
+            switch (result) {
+                case ADDED ->
+                    treeModel.reload(node);
+                case NAME_IN_USE ->
+                    DialogManager.showError(this, "File name already in use");
+                default ->
+                    DialogManager.showError(this, "File could not be created");
+            }
+        }
+    }
+
+    private void deleteFile(TreeFile node) {
+        if (node.delete()) {
+            var parent = node.getParent();
+            if (Objects.nonNull(parent)) {
+                ((TreeFile) parent).remove(node);
+            }
+            treeModel.reload(node);
+            tabs.removeFile(node);
+        } else {
+            DialogManager.showError(this, "File could not be deleted");
         }
     }
 

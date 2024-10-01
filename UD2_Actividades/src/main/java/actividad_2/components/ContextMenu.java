@@ -18,7 +18,8 @@ public class ContextMenu extends JPopupMenu {
         RENAME("Rename"),
         REFRESH("Refresh"),
         NEW_FOLDER("New Folder"),
-        NEW_FILE("New File");
+        NEW_FILE("New File"),
+        DELETE("Delete");
         public final String label;
 
         private Options(String label) {

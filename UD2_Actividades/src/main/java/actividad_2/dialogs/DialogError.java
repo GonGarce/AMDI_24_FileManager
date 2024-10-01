@@ -20,6 +20,7 @@ public class DialogError extends javax.swing.JDialog {
         initComponents();
         this.setLocationRelativeTo(parent);
         this.lblDescription.setText(description);
+        this.setMinimumSize(this.getPreferredSize());
     }
 
     /**

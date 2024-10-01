@@ -23,16 +23,25 @@ public abstract class TreeFile extends DefaultMutableTreeNode {
     public boolean rename(String newName) {
         File newFile = new File(file.getParent(), newName);
         boolean result = file.renameTo(newFile);
-        if(result) {
+        if (result) {
             this.file = newFile;
         }
         return result;
     }
-    
+
+    public boolean delete() {
+        if (file.isFile()) {
+            return file.delete();
+        } else if (file.list().length == 0) {
+            return file.delete();
+        }
+        return false;
+    }
+
     public void setName(String name) {
         this.setUserObject(name);
     }
-    
+
     public String getName() {
         return file.getName();
     }
